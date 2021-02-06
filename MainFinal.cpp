@@ -344,13 +344,52 @@ pair<ZZX, ZZX> multCiphertexts(pair<ZZX, ZZX>& ciphertext0, pair<ZZX, ZZX>& ciph
   return multEncrypted;
 }
 
+void testMultiplication(CryptoContext_BFV& cryptoContext, pair<ZZX, ZZX> publicKey, ZZX secretKey, vector<pair<ZZX, ZZX>> rlk) {
+  int poly_mod_degree = cryptoContext.poly_mod_degree;
+  ZZX poly_mod = cryptoContext.poly_mod;
+  ZZ coeff_mod_degree = cryptoContext.coeff_mod_degree;
+  ZZ plain_mod_degree = cryptoContext.plain_mod_degree;
 
+  for (int test_nr = 0; test_nr < 10; test_nr++) {
+    ZZX plain1;
+    for (int i = 0; i < 30; i++) {
+      ZZ coeff = ZZ(rand()) % plain_mod_degree;
+      if (coeff > plain_mod_degree / 2) {
+        coeff = coeff - plain_mod_degree;
+      }
 
+      SetCoeff(plain1, i, coeff);
+    }
+    plain1 = plain1 % cryptoContext.poly_mod;
 
+    ZZX plain2;
+    for (int i = 0; i < 30; i++) {
+      ZZ coeff = ZZ(rand()) % plain_mod_degree;
+      if (coeff > plain_mod_degree / 2) {
+        coeff = coeff - plain_mod_degree;
+      }
 
+      SetCoeff(plain2, i, coeff);
+    }
+    plain2 = plain2 % cryptoContext.poly_mod;
 
+    auto ciphertext1 = encrypt(plain1, cryptoContext, publicKey);
+    auto ciphertext2 = encrypt(plain2, cryptoContext, publicKey);
 
+    auto ciphertextMult = multCiphertexts(ciphertext1, ciphertext2, cryptoContext, rlk);
+    auto decryptedMult = decrypt(ciphertextMult, cryptoContext, secretKey);
 
+    auto plainMult = plain1 * plain2;
+    reduceCoeffMod(plainMult, plain_mod_degree);
+
+    if (plainMult == decryptedMult) {
+      cout << "Test " << test_nr << " succeeded" << endl;
+    } else {
+      cout << "Test " << test_nr << " failed" << endl;
+    }
+  }
+
+}
 
 
 int main() {
@@ -457,4 +496,7 @@ int main() {
   } else {
     cout << "Decryption of multiplication failed." << endl << endl;
   }
+
+  cout << endl << endl << endl << "***Test***" << endl;
+  testMultiplication(cryptoContext, publicKey, secretKey, rlk);
 }
