@@ -1,0 +1,29 @@
+ZZ: Big integers
+  Promotion constructor ZZ(long a)
+
+ZZ_p: Integers modulo some p (need not be prime).
+  Represented as a ZZ in the range 0 ... p-1
+  To initialize: 
+    ZZ_p::init(p) with p in ZZ
+
+ZZ_pX: Polynomials over ZZ_p
+  Polynomial represented as a coefficient vector.
+    coeff(f, i): coefficient of x^i
+    SetCoeff(f, i, a): set coefficient of x^i to (scalar) a in f
+
+  Evaluation:
+    eval(ZZ_p b, ZZ_pX f, ZZ_p a) => b = f(a)
+
+  random_ZZ_pX(long n): can be used to generate a polynomial of degree < n
+
+ZZ_pxModulus:
+  Can be used like ZZ_pX when we want to do a lot of modular computations modulo a fixed polynomial f (which we pretty much want)
+
+
+ZZ_pE: Polynomials in Z_p[X] modulo a polynomial P. 
+  These are represented as a ZZ_pX of degree < deg(P).
+  To initialize: 
+    ZZ_pE::init(P) with P in ZZ_pX
+
+
+!!! If you cannot access the coefficients of a polynomial with coeff() or GetCoeff(), you can use f.rep[...]
